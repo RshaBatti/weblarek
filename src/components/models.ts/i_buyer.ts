@@ -16,23 +16,11 @@ type UserProfileValidationErrors = Partial<Record<keyof UserProfile, string>>;
  * Конструктор класса не принимает параметров.
  */
 export class IBuyer {
-  /** Выбранный способ оплаты ('card' | 'cash' | null) */
   private payment: TPayment = null;
-
-  /** Контактный email пользователя */
   private email: string = '';
-
-  /** Контактный номер телефона */
   private phone: string = '';
-
-  /** Адрес доставки товара */
   private address: string = '';
 
-  /**
-   * Объект с ошибками валидации. Ключи соответствуют полям интерфейса UserProfile,
-   * значения — текстовые сообщения об ошибках. Если поле валидно, оно отсутствует в объекте.
-   */
-  private validationErrors: UserProfileValidationErrors = {};
 
   constructor() {}
 
@@ -76,50 +64,40 @@ export class IBuyer {
    * - email не должен быть пустой строкой;
    * - phone не должен быть пустой строкой;
    * - address не должен быть пустой строкой.
-   * Заполняет объект validationErrors сообщениями об ошибках для невалидных полей.
-   * @returns true, если все поля валидны, иначе false
+     * @returns объект с ошибками валидации типа UserProfileValidationErrors.
+   * Если все поля валидны, возвращается пустой объект {}
    */
-  public validate(): boolean {
-    this.validationErrors = {};
+  public validate(): UserProfileValidationErrors {
+    const validationErrors: UserProfileValidationErrors = {};
 
     if (this.payment === null) {
-      this.validationErrors.payment = 'Не выбран способ оплаты';
+      validationErrors.payment = 'Не выбран способ оплаты';
     }
 
     if (this.email.trim() === '') {
-      this.validationErrors.email = 'Email не может быть пустым';
+      validationErrors.email = 'Email не может быть пустым';
     }
 
     if (this.phone.trim() === '') {
-      this.validationErrors.phone = 'Телефон не может быть пустым';
+      validationErrors.phone = 'Телефон не может быть пустым';
     }
 
     if (this.address.trim() === '') {
-      this.validationErrors.address = 'Адрес не может быть пустым';
+      validationErrors.address = 'Адрес не может быть пустым';
     }
 
-    return Object.keys(this.validationErrors).length === 0;
+    return validationErrors;
   }
 
-  /**
+ /**
    * Сбрасывает все поля в исходное состояние (null или пустая строка)
-   * после успешного завершения заказа. Также очищает объект validationErrors.
+   * после успешного завершения заказа.
    */
   public clearData(): void {
     this.payment = null;
     this.email = '';
     this.phone = '';
     this.address = '';
-    this.validationErrors = {};
-  }
-
-  /**
-   * Возвращает копию объекта validationErrors. Позволяет получить детализацию ошибок
-   * для отображения в интерфейсе (например, подсветить некорректные поля формы).
-   * @returns объект с ошибками валидации типа UserProfileValidationErrors
-   */
-  public getValidationErrors(): UserProfileValidationErrors {
-    return { ...this.validationErrors };
   }
 }
 

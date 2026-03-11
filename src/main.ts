@@ -47,15 +47,27 @@ function testTotalItemsModel(): void {
   console.log('✓ При поиске несуществующего товара возвращается null');
 
   console.log('\n4. Проверка метода setPreview():');
-  console.log('Устанавливаем превью для товара с ID:', firstProductId);
-  totalItemsModel.setPreview(firstProductId ?? null);
-  console.log('✓ ID товара успешно установлен в поле preview');
+  if (firstProductId) {
+    const productForPreview = totalItemsModel.getProductById(firstProductId);
+
+    if (productForPreview) {
+      console.log('Устанавливаем превью для товара с ID:', firstProductId);
+      totalItemsModel.setPreview(productForPreview);
+      console.log('✓ Объект товара успешно установлен в поле preview');
+    }
+  }
 
   console.log('\nУстановка null в поле preview:');
   totalItemsModel.setPreview(null);
   console.log('✓ Поле preview успешно сброшено (установлено в null)');
 
-  totalItemsModel.setPreview(firstProductId ?? null);
+  // Повторно устанавливаем превью для следующей проверки
+  if (firstProductId) {
+    const productForPreview = totalItemsModel.getProductById(firstProductId);
+    if (productForPreview) {
+      totalItemsModel.setPreview(productForPreview);
+    }
+  }
 
   console.log('\n5. Проверка метода getPreview():');
   const currentPreview = totalItemsModel.getPreview();
@@ -70,6 +82,7 @@ function testTotalItemsModel(): void {
 
   console.log('\n=== Все тесты успешно пройдены! Класс TotalItems работает корректно ===');
 }
+
 
 function testBasketModel(): void {
   console.log('\n=== Проверка работы класса BasketItems ===');
@@ -187,10 +200,14 @@ function testBuyerModel(): void {
   console.log('✓ Частичное обновление данных работает корректно');
 
   console.log('\n4. Проверка валидации с корректными данными:');
-  const isValid = buyerModel.validate();
-  console.log('Результат валидации:', isValid);
-  console.log('Ошибки валидации:', buyerModel.getValidationErrors());
-  console.log('✓ При корректных данных валидация возвращает true, ошибок нет');
+  const validationErrors = buyerModel.validate();
+  console.log('Результат валидации:', validationErrors);
+
+  if (Object.keys(validationErrors).length === 0) {
+    console.log('✓ При корректных данных валидация возвращает пустой объект — ошибок нет');
+  } else {
+    console.error('✗ Ошибка: при корректных данных обнаружены ошибки валидации:', validationErrors);
+  }
 
   console.log('\n5. Проверка валидации с некорректными данными:');
   buyerModel.clearData();
@@ -201,24 +218,21 @@ function testBuyerModel(): void {
     address: ''
   });
 
-  const isInvalid = buyerModel.validate();
-  console.log('Результат валидации с ошибками:', isInvalid);
-
-  const validationErrors = buyerModel.getValidationErrors();
-  console.log('Найденные ошибки валидации:', validationErrors);
+  const errorsAfterInvalidData = buyerModel.validate();
+  console.log('Результат валидации с ошибками:', errorsAfterInvalidData);
 
   console.log('\nДетализация ошибок:');
-  if (validationErrors.payment) {
-    console.log(`- Ошибка в поле payment: "${validationErrors.payment}"`);
+  if (errorsAfterInvalidData.payment) {
+    console.log(`- Ошибка в поле payment: "${errorsAfterInvalidData.payment}"`);
   }
-  if (validationErrors.email) {
-    console.log(`- Ошибка в поле email: "${validationErrors.email}"`);
+  if (errorsAfterInvalidData.email) {
+    console.log(`- Ошибка в поле email: "${errorsAfterInvalidData.email}"`);
   }
-  if (validationErrors.address) {
-    console.log(`- Ошибка в поле address: "${validationErrors.address}"`);
+  if (errorsAfterInvalidData.address) {
+    console.log(`- Ошибка в поле address: "${errorsAfterInvalidData.address}"`);
   }
-  if (validationErrors.phone) {
-    console.log(`- Ошибка в поле phone: "${validationErrors.phone}"`);
+  if (errorsAfterInvalidData.phone) {
+    console.log(`- Ошибка в поле phone: "${errorsAfterInvalidData.phone}"`);
   }
   console.log('✓ Валидация корректно находит все ошибки и формирует сообщения');
 
@@ -229,10 +243,14 @@ function testBuyerModel(): void {
     address: 'г. Санкт-Петербург, пр. Невский, д. 1'
   });
 
-  const isValidAfterFix = buyerModel.validate();
-  console.log('Результат повторной валидации после исправления:', isValidAfterFix);
-  console.log('Ошибки после исправления:', buyerModel.getValidationErrors());
-  console.log('✓ После исправления ошибок валидация проходит успешно');
+  const finalValidationErrors = buyerModel.validate();
+  console.log('Результат повторной валидации после исправления:', finalValidationErrors);
+
+  if (Object.keys(finalValidationErrors).length === 0) {
+    console.log('✓ После исправления ошибок валидация проходит успешно (возвращает пустой объект)');
+  } else {
+    console.error('✗ Ошибка: после исправления остались ошибки валидации:', finalValidationErrors);
+  }
 
   console.log('\n7. Проверка крайних случаев setData():');
   buyerModel.setData({
@@ -249,15 +267,19 @@ function testBuyerModel(): void {
   buyerModel.clearData();
 
   const clearedData = buyerModel.getData();
-  const errorsAfterClear = buyerModel.getValidationErrors();
+  const validationAfterClear = buyerModel.validate();
   console.log('Данные после очистки:', clearedData);
-  console.log('Ошибки после очистки:', errorsAfterClear);
-  console.log('✓ Метод clearData() успешно сбрасывает все поля и очищает ошибки');
+  console.log('Результат валидации после очистки:', validationAfterClear);
+
+  if (Object.keys(validationAfterClear).length === 0) {
+    console.log('✓ Метод clearData() успешно сбрасывает все поля и валидация возвращает пустой объект');
+  } else {
+    console.error('✗ Ошибка: после очистки данных остались ошибки валидации:', validationAfterClear);
+  }
 
   console.log('\n9. Финальная проверка на очищенном объекте:');
-  const finalValidation = buyerModel.validate();
-  console.log('Валидация пустых данных:', finalValidation);
-  console.log('Ошибки валидации пустых данных:', buyerModel.getValidationErrors());
+  const finalEmptyValidation = buyerModel.validate();
+  console.log('Валидация пустых данных:', finalEmptyValidation);
 
   buyerModel.setData({
     payment: 'card',
@@ -267,12 +289,19 @@ function testBuyerModel(): void {
   });
 
   console.log('\nУстанавливаем минимальные корректные данные и валидируем:');
-  const finalValid = buyerModel.validate();
-  console.log('Финальная валидация:', finalValid);
+  const finalValidErrors = buyerModel.validate();
+  console.log('Финальная валидация:', finalValidErrors);
   console.log('Финальные данные:', buyerModel.getData());
+
+  if (Object.keys(finalValidErrors).length === 0) {
+    console.log('✓ Финальная валидация прошла успешно — ошибок нет');
+  } else {
+    console.error('✗ Ошибка: финальная валидация обнаружила ошибки:', finalValidErrors);
+  }
 
   console.log('\n=== Все тесты успешно пройдены! Класс IBuyer работает корректно ===');
 }
+
 
 async function fetchCatalog(): Promise<void> {
   console.log('\n=== Запрос каталога с сервера ===');

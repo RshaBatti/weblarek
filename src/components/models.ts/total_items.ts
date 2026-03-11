@@ -6,7 +6,7 @@ import { IProduct } from '../../types/index';
  */
 export class TotalItems {
   private items: IProduct[] = [];
-  private preview: string | null = null;
+  private preview:  IProduct  | null = null;
 
   constructor() {}
 
@@ -42,23 +42,18 @@ export class TotalItems {
    * Это инициирует событие открытия модального окна в интерфейсе
    * @param productId - идентификатор товара для превью или null
    */
-  public setPreview(productId: string | null): void {
-    this.preview = productId;
-  }
+  public setPreview(item: IProduct) {
+    this.preview = item;
+ }
 
   /**
    * Находит и возвращает объект товара из массива items, чей id совпадает со значением в поле preview
    * Если товар не найден или превью не задано, возвращает null
    * @returns найденный товар или null
    */
-  public getPreview(): IProduct | null {
-    if (!this.preview) {
-      return null;
-    }
-
-    const product = this.items.find(item => item.id === this.preview);
-    return product || null;
-  }
+  public getPreview(): IProduct | null { 
+        return this.preview; 
+}
 }
 
 

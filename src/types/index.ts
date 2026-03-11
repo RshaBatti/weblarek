@@ -14,9 +14,9 @@ export interface FetchData {
  * Данные заказа, отправляемые на сервер
  * Использует существующие типы UserProfile и IProduct
  */
-export interface IOrder {
-  customer: UserProfile;
-  items: IProduct[];
+export interface IOrder extends UserProfile {
+    total: number,
+    items: string[]
 }
 
 /**
