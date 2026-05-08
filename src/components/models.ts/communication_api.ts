@@ -18,8 +18,8 @@ export class CommunicationApi {
 
   async sendOrder(orderData: IOrder): Promise<OrderResponse> {
     try {
-      const response = await this.api.post<{ data: OrderResponse }>('/order/', orderData);
-      return response.data;
+      const response = await this.api.post<OrderResponse>('/order/', orderData);
+      return response;
     } catch (error) {
       console.error('Произошла ошибка при отправке заказа на сервер:', error);
       throw error;
