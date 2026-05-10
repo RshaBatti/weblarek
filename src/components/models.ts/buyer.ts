@@ -33,9 +33,6 @@ export class IBuyer {
 
     // Сообщаем об изменении данных
     this.events.emit('buyer:changed', this.getData());
-
-    // Генерируем событие с результатами валидации
-    this.events.emit('buyer:validation', this.validate());
   }
 
   public getData(): UserProfile {

@@ -1,10 +1,11 @@
 import { Form } from './form';
 import { IEvents } from '../base/Events';
 import { ensureElement } from '../../utils/utils';
+import { TPayment } from '../../types/index';
 
 interface IOrder {
     address: string;
-    payment: string | null;
+    payment: TPayment | null;
 }
 
 export class Order extends Form<IOrder> {
@@ -19,12 +20,10 @@ export class Order extends Form<IOrder> {
         this.addressInput = ensureElement<HTMLInputElement>('input[name="address"]', container);
 
         this.buttonCard.addEventListener('click', () => {
-            this.payment = 'card'; // Подсветка кнопки
             this.events.emit('order:payment-change', { target: 'card' });
         });
 
         this.buttonCash.addEventListener('click', () => {
-            this.payment = 'cash';
             this.events.emit('order:payment-change', { target: 'cash' });
         });
         this.addressInput.addEventListener('input', (e) => {
@@ -39,7 +38,7 @@ export class Order extends Form<IOrder> {
     }
 
 
-    set payment(name: string | null) {
+    set payment(name: TPayment | null) {
         this.buttonCard.classList.toggle('button_alt-active', name === 'card');
         this.buttonCash.classList.toggle('button_alt-active', name === 'cash');
     }

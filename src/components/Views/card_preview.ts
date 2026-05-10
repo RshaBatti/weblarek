@@ -7,7 +7,8 @@ interface ICardPreview {
     description: string;
     image: string;
     category: string;
-    inCart: boolean;
+    buttonText: string;
+    buttonDisabled: boolean;
 }
 
 export class CardPreview extends Card<ICardPreview> {
@@ -16,7 +17,7 @@ export class CardPreview extends Card<ICardPreview> {
     protected textElement: HTMLElement;
     protected buttonElement: HTMLButtonElement;
 
-    constructor(container: HTMLElement, events: IEvents, actions?: { onClick: () => void }) {
+    constructor(container: HTMLElement, events: IEvents) {
         super(container, events);
         this.imageElement = ensureElement<HTMLImageElement>('.card__image', container);
         this.categoryElement = ensureElement<HTMLElement>('.card__category', container);
@@ -25,7 +26,6 @@ export class CardPreview extends Card<ICardPreview> {
 
         this.buttonElement.addEventListener('click', () => {
             this.events.emit('card:toBasket');
-            if (actions?.onClick) actions.onClick();
         });
     }
 
@@ -46,20 +46,13 @@ export class CardPreview extends Card<ICardPreview> {
         this.textElement.textContent = value;
     }
 
-    set price(value: number | null) {
-        if (value === null) {
-            this.priceElement.textContent = 'Бесценно';
-            this.buttonElement.disabled = true;
-            this.buttonElement.textContent = 'Недоступно';
-        } else {
-            this.priceElement.textContent = `${value} синапсов`;
-            this.buttonElement.disabled = false;
-        }
+    // Сеттер для текста кнопки
+    set buttonText(value: string) {
+        this.buttonElement.textContent = value;
     }
 
-    set inCart(value: boolean) {
-        if (!this.buttonElement.disabled) {
-            this.buttonElement.textContent = value ? 'Удалить из корзины' : 'Купить';
-        }
+    // Сеттер для состояния кнопки (блокировка)
+    set buttonDisabled(value: boolean) {
+        this.buttonElement.disabled = value;
     }
 }

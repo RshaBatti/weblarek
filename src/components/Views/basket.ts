@@ -5,7 +5,7 @@ import { ensureElement, createElement } from '../../utils/utils'
 interface IBasket {
     items: HTMLElement[];
     total: number;
-    selected: boolean;
+    enabled: boolean;
 }
 
 export class Basket extends Component<IBasket> {
@@ -49,7 +49,7 @@ export class Basket extends Component<IBasket> {
     /**
      * Управляет активностью кнопки оформления
      */
-    set selected(value: boolean) {
+    set enabled(value: boolean) {
         this.submitButton.disabled = !value;
     }
 }
